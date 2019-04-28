@@ -1,0 +1,12 @@
+_arr [ '/usr/local/bin/node',
+  '/Users/seafly/code/pm/bin/rocker',
+  'start',
+  'test/app.js',
+  '-i',
+  '2' ]
+[2019-04-28 18:26:20.727] [cfork:master:84860] worker:84862 disconnect (exitedAfterDisconnect: false, state: disconnected, isDead: false, worker.disableRefork: true)
+[2019-04-28 18:26:20.728] [cfork:master:84860] don't fork, because worker:84862 will be kill soon
+[2019-04-28 18:26:20.729] [cfork:master:84860] worker:84861 disconnect (exitedAfterDisconnect: false, state: disconnected, isDead: false, worker.disableRefork: true)
+[2019-04-28 18:26:20.729] [cfork:master:84860] don't fork, because worker:84861 will be kill soon
+[2019-04-28 18:26:20.732] [cfork:master:84860] worker:84861 exit (code: null, exitedAfterDisconnect: false, state: dead, isDead: true, isExpected: false, worker.disableRefork: true)
+[2019-04-28 18:26:20.733] [cfork:master:84860] worker:84862 exit (code: null, exitedAfterDisconnect: false, state: dead, isDead: true, isExpected: false, worker.disableRefork: true)

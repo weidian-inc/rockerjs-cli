@@ -3,5 +3,14 @@ export function isProduction() {
     if (serverEnv) {
         return serverEnv !== 'local' && serverEnv !== 'unittest';
     }
-    return process.env.NODE_ENV === 'production';
+    return serverEnv === 'production' || serverEnv === 'prod';
+}
+
+export function isDev() {
+    const serverEnv = process.env.NODE_ENV;
+    if(serverEnv == 'local' || serverEnv == 'dev' || !serverEnv){
+        return true;
+    }else{
+        return false
+    }
 }

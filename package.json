@@ -19,15 +19,21 @@
     "rocker": "./bin/rocker"
   },
   "dependencies": {
+    "@types/lodash": "^4.14.129",
     "@types/node": "^11.13.6",
     "await-event": "^2.1.0",
     "cfork": "^1.7.1",
+    "chokidar": "^3.0.0",
     "cluster-reload": "^1.0.2",
     "commander": "2.15.1",
     "debug": "^3.2.6",
     "detect-port": "^1.3.0",
+    "ejs": "^2.6.1",
+    "ini": "^1.3.5",
+    "lodash": "^4.17.11",
     "mz-modules": "^2.1.0",
     "ps-tree": "^1.2.0",
+    "sb-scandir": "^2.0.0",
     "sendmessage": "^1.1.0"
   },
   "devDependencies": {

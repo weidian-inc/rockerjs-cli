@@ -4,9 +4,428 @@ _arr [ '/usr/local/bin/node',
   'test/app.js',
   '-i',
   '2' ]
-[2019-04-28 18:26:20.727] [cfork:master:84860] worker:84862 disconnect (exitedAfterDisconnect: false, state: disconnected, isDead: false, worker.disableRefork: true)
-[2019-04-28 18:26:20.728] [cfork:master:84860] don't fork, because worker:84862 will be kill soon
-[2019-04-28 18:26:20.729] [cfork:master:84860] worker:84861 disconnect (exitedAfterDisconnect: false, state: disconnected, isDead: false, worker.disableRefork: true)
-[2019-04-28 18:26:20.729] [cfork:master:84860] don't fork, because worker:84861 will be kill soon
-[2019-04-28 18:26:20.732] [cfork:master:84860] worker:84861 exit (code: null, exitedAfterDisconnect: false, state: dead, isDead: true, isExpected: false, worker.disableRefork: true)
-[2019-04-28 18:26:20.733] [cfork:master:84860] worker:84862 exit (code: null, exitedAfterDisconnect: false, state: dead, isDead: true, isExpected: false, worker.disableRefork: true)
+[master] start appWorker with args ["{\"count\":\"2\",\"exec\":\"test/app.js\",\"clusterPort\":57057}"]
+[master] app_worker#1:19730 start, state: none, current workers: ["1","2"]
+[master] app_worker#2:19731 start, state: none, current workers: ["1","2"]
+[master] reload workers...
+[master] app_worker#3:19732 start, state: none, current workers: ["1","3","4"]
+[master] app_worker#4:19733 start, state: none, current workers: ["1","3","4"]
+listening
+[2019-05-21 15:41:04.224] [cfork:master:19729] worker:19731 disconnect (exitedAfterDisconnect: true, state: disconnected, isDead: false, worker.disableRefork: true)
+[2019-05-21 15:41:04.224] [cfork:master:19729] don't fork, because worker:19731 will be kill soon
+[master] app_worker#2:19731 disconnect, suicide: true, state: disconnected, current workers: ["1","3","4"]
+[2019-05-21 15:41:04.228] [cfork:master:19729] worker:19731 exit (code: 0, exitedAfterDisconnect: true, state: dead, isDead: true, isExpected: false, worker.disableRefork: true)
+exit Worker {
+  domain: null,
+  _events: { message: [Function] },
+  _eventsCount: 1,
+  _maxListeners: undefined,
+  exitedAfterDisconnect: true,
+  suicide: [Getter/Setter],
+  state: 'dead',
+  id: 2,
+  process: 
+   ChildProcess {
+     domain: null,
+     _events: 
+      { internalMessage: [Array],
+        error: [Function],
+        message: [Function] },
+     _eventsCount: 3,
+     _maxListeners: undefined,
+     _closesNeeded: 2,
+     _closesGot: 1,
+     connected: false,
+     signalCode: null,
+     exitCode: 0,
+     killed: true,
+     spawnfile: '/usr/local/bin/node',
+     _handle: null,
+     spawnargs: 
+      [ '/usr/local/bin/node',
+        '/Users/seafly/code/pm/test/app.js',
+        '{"count":"2","exec":"test/app.js","clusterPort":57057}' ],
+     pid: 19731,
+     stdin: null,
+     stdout: null,
+     stderr: null,
+     stdio: [ null, null, null, null ],
+     channel: null,
+     _channel: [Getter/Setter],
+     _handleQueue: null,
+     _pendingMessage: null,
+     send: [Function],
+     _send: [Function],
+     disconnect: [Function],
+     _disconnect: [Function] },
+  _clusterSettings: 
+   { args: [ '{"count":"2","exec":"test/app.js","clusterPort":57057}' ],
+     exec: '/Users/seafly/code/pm/test/app.js',
+     execArgv: [],
+     silent: false },
+  disableRefork: true,
+  isDevReload: true } 0 null
+listening
+[2019-05-21 15:41:04.306] [cfork:master:19729] worker:19730 disconnect (exitedAfterDisconnect: true, state: disconnected, isDead: false, worker.disableRefork: true)
+[2019-05-21 15:41:04.307] [cfork:master:19729] don't fork, because worker:19730 will be kill soon
+[master] app_worker#1:19730 disconnect, suicide: true, state: disconnected, current workers: ["3","4"]
+[2019-05-21 15:41:04.307] [cfork:master:19729] worker:19730 exit (code: 0, exitedAfterDisconnect: true, state: dead, isDead: true, isExpected: false, worker.disableRefork: true)
+exit Worker {
+  domain: null,
+  _events: { message: [Function] },
+  _eventsCount: 1,
+  _maxListeners: undefined,
+  exitedAfterDisconnect: true,
+  suicide: [Getter/Setter],
+  state: 'dead',
+  id: 1,
+  process: 
+   ChildProcess {
+     domain: null,
+     _events: 
+      { internalMessage: [Array],
+        error: [Function],
+        message: [Function] },
+     _eventsCount: 3,
+     _maxListeners: undefined,
+     _closesNeeded: 2,
+     _closesGot: 1,
+     connected: false,
+     signalCode: null,
+     exitCode: 0,
+     killed: true,
+     spawnfile: '/usr/local/bin/node',
+     _handle: null,
+     spawnargs: 
+      [ '/usr/local/bin/node',
+        '/Users/seafly/code/pm/test/app.js',
+        '{"count":"2","exec":"test/app.js","clusterPort":57057}' ],
+     pid: 19730,
+     stdin: null,
+     stdout: null,
+     stderr: null,
+     stdio: [ null, null, null, null ],
+     channel: null,
+     _channel: [Getter/Setter],
+     _handleQueue: null,
+     _pendingMessage: null,
+     send: [Function],
+     _send: [Function],
+     disconnect: [Function],
+     _disconnect: [Function] },
+  _clusterSettings: 
+   { args: [ '{"count":"2","exec":"test/app.js","clusterPort":57057}' ],
+     exec: '/Users/seafly/code/pm/test/app.js',
+     execArgv: [],
+     silent: false },
+  disableRefork: true,
+  isDevReload: true } 0 null
+listening
+[master] reload workers...
+[master] app_worker#5:19745 start, state: none, current workers: ["3","5","6"]
+[master] app_worker#6:19746 start, state: none, current workers: ["3","5","6"]
+[2019-05-21 15:41:07.772] [cfork:master:19729] worker:19733 disconnect (exitedAfterDisconnect: true, state: disconnected, isDead: false, worker.disableRefork: true)
+[2019-05-21 15:41:07.773] [cfork:master:19729] don't fork, because worker:19733 will be kill soon
+[master] app_worker#4:19733 disconnect, suicide: true, state: disconnected, current workers: ["3","5","6"]
+[2019-05-21 15:41:07.780] [cfork:master:19729] worker:19733 exit (code: null, exitedAfterDisconnect: true, state: dead, isDead: true, isExpected: false, worker.disableRefork: true)
+exit Worker {
+  domain: null,
+  _events: { message: [Function] },
+  _eventsCount: 1,
+  _maxListeners: undefined,
+  exitedAfterDisconnect: true,
+  suicide: [Getter/Setter],
+  state: 'dead',
+  id: 4,
+  process: 
+   ChildProcess {
+     domain: null,
+     _events: 
+      { internalMessage: [Array],
+        error: [Function],
+        message: [Function] },
+     _eventsCount: 3,
+     _maxListeners: undefined,
+     _closesNeeded: 2,
+     _closesGot: 1,
+     connected: false,
+     signalCode: 'SIGTERM',
+     exitCode: null,
+     killed: true,
+     spawnfile: '/usr/local/bin/node',
+     _handle: null,
+     spawnargs: 
+      [ '/usr/local/bin/node',
+        '/Users/seafly/code/pm/test/app.js',
+        '{"count":"2","exec":"test/app.js","clusterPort":57057}' ],
+     pid: 19733,
+     stdin: null,
+     stdout: null,
+     stderr: null,
+     stdio: [ null, null, null, null ],
+     channel: null,
+     _channel: [Getter/Setter],
+     _handleQueue: null,
+     _pendingMessage: null,
+     send: [Function],
+     _send: [Function],
+     disconnect: [Function],
+     _disconnect: [Function] },
+  disableRefork: true,
+  isDevReload: true } null SIGTERM
+listening
+listening
+[2019-05-21 15:41:08.021] [cfork:master:19729] worker:19732 disconnect (exitedAfterDisconnect: true, state: disconnected, isDead: false, worker.disableRefork: true)
+[2019-05-21 15:41:08.022] [cfork:master:19729] don't fork, because worker:19732 will be kill soon
+[master] app_worker#3:19732 disconnect, suicide: true, state: disconnected, current workers: ["5","6"]
+[2019-05-21 15:41:08.027] [cfork:master:19729] worker:19732 exit (code: null, exitedAfterDisconnect: true, state: dead, isDead: true, isExpected: false, worker.disableRefork: true)
+exit Worker {
+  domain: null,
+  _events: { message: [Function], exit: [Function: reset] },
+  _eventsCount: 2,
+  _maxListeners: undefined,
+  exitedAfterDisconnect: true,
+  suicide: [Getter/Setter],
+  state: 'dead',
+  id: 3,
+  process: 
+   ChildProcess {
+     domain: null,
+     _events: 
+      { internalMessage: [Array],
+        error: [Function],
+        message: [Function] },
+     _eventsCount: 3,
+     _maxListeners: undefined,
+     _closesNeeded: 2,
+     _closesGot: 1,
+     connected: false,
+     signalCode: 'SIGTERM',
+     exitCode: null,
+     killed: true,
+     spawnfile: '/usr/local/bin/node',
+     _handle: null,
+     spawnargs: 
+      [ '/usr/local/bin/node',
+        '/Users/seafly/code/pm/test/app.js',
+        '{"count":"2","exec":"test/app.js","clusterPort":57057}' ],
+     pid: 19732,
+     stdin: null,
+     stdout: null,
+     stderr: null,
+     stdio: [ null, null, null, null ],
+     channel: null,
+     _channel: [Getter/Setter],
+     _handleQueue: null,
+     _pendingMessage: null,
+     send: [Function],
+     _send: [Function],
+     disconnect: [Function],
+     _disconnect: [Function] },
+  disableRefork: true,
+  isDevReload: true } null SIGTERM
+[master] reload workers...
+[master] app_worker#7:19748 start, state: none, current workers: ["5","7","8"]
+[master] app_worker#8:19749 start, state: none, current workers: ["5","7","8"]
+[2019-05-21 15:41:10.011] [cfork:master:19729] worker:19746 disconnect (exitedAfterDisconnect: true, state: disconnected, isDead: false, worker.disableRefork: true)
+[2019-05-21 15:41:10.012] [cfork:master:19729] don't fork, because worker:19746 will be kill soon
+[master] app_worker#6:19746 disconnect, suicide: true, state: disconnected, current workers: ["5","7","8"]
+[2019-05-21 15:41:10.016] [cfork:master:19729] worker:19746 exit (code: null, exitedAfterDisconnect: true, state: dead, isDead: true, isExpected: false, worker.disableRefork: true)
+exit Worker {
+  domain: null,
+  _events: { message: [Function] },
+  _eventsCount: 1,
+  _maxListeners: undefined,
+  exitedAfterDisconnect: true,
+  suicide: [Getter/Setter],
+  state: 'dead',
+  id: 6,
+  process: 
+   ChildProcess {
+     domain: null,
+     _events: 
+      { internalMessage: [Array],
+        error: [Function],
+        message: [Function] },
+     _eventsCount: 3,
+     _maxListeners: undefined,
+     _closesNeeded: 2,
+     _closesGot: 1,
+     connected: false,
+     signalCode: 'SIGTERM',
+     exitCode: null,
+     killed: true,
+     spawnfile: '/usr/local/bin/node',
+     _handle: null,
+     spawnargs: 
+      [ '/usr/local/bin/node',
+        '/Users/seafly/code/pm/test/app.js',
+        '{"count":"2","exec":"test/app.js","clusterPort":57057}' ],
+     pid: 19746,
+     stdin: null,
+     stdout: null,
+     stderr: null,
+     stdio: [ null, null, null, null ],
+     channel: null,
+     _channel: [Getter/Setter],
+     _handleQueue: null,
+     _pendingMessage: null,
+     send: [Function],
+     _send: [Function],
+     disconnect: [Function],
+     _disconnect: [Function] },
+  disableRefork: true,
+  isDevReload: true } null SIGTERM
+listening
+[2019-05-21 15:41:10.146] [cfork:master:19729] worker:19745 disconnect (exitedAfterDisconnect: true, state: disconnected, isDead: false, worker.disableRefork: true)
+[2019-05-21 15:41:10.147] [cfork:master:19729] don't fork, because worker:19745 will be kill soon
+[master] app_worker#5:19745 disconnect, suicide: true, state: disconnected, current workers: ["7","8"]
+listening
+[2019-05-21 15:41:10.150] [cfork:master:19729] worker:19745 exit (code: null, exitedAfterDisconnect: true, state: dead, isDead: true, isExpected: false, worker.disableRefork: true)
+exit Worker {
+  domain: null,
+  _events: { message: [Function], exit: [Function: reset] },
+  _eventsCount: 2,
+  _maxListeners: undefined,
+  exitedAfterDisconnect: true,
+  suicide: [Getter/Setter],
+  state: 'dead',
+  id: 5,
+  process: 
+   ChildProcess {
+     domain: null,
+     _events: 
+      { internalMessage: [Array],
+        error: [Function],
+        message: [Function] },
+     _eventsCount: 3,
+     _maxListeners: undefined,
+     _closesNeeded: 2,
+     _closesGot: 1,
+     connected: false,
+     signalCode: 'SIGTERM',
+     exitCode: null,
+     killed: true,
+     spawnfile: '/usr/local/bin/node',
+     _handle: null,
+     spawnargs: 
+      [ '/usr/local/bin/node',
+        '/Users/seafly/code/pm/test/app.js',
+        '{"count":"2","exec":"test/app.js","clusterPort":57057}' ],
+     pid: 19745,
+     stdin: null,
+     stdout: null,
+     stderr: null,
+     stdio: [ null, null, null, null ],
+     channel: null,
+     _channel: [Getter/Setter],
+     _handleQueue: null,
+     _pendingMessage: null,
+     send: [Function],
+     _send: [Function],
+     disconnect: [Function],
+     _disconnect: [Function] },
+  disableRefork: true,
+  isDevReload: true } null SIGTERM
+signal SIGINT
+[master] receive signal SIGINT, closing
+[master] send kill SIGTERM to app workers, will exit with code:0 after 5000ms
+[2019-05-21 15:41:11.403] [cfork:master:19729] worker:19749 disconnect (exitedAfterDisconnect: false, state: disconnected, isDead: false, worker.disableRefork: true)
+[2019-05-21 15:41:11.404] [cfork:master:19729] don't fork, because worker:19749 will be kill soon
+[master] app_worker#8:19749 disconnect, suicide: false, state: disconnected, current workers: ["7","8"]
+[2019-05-21 15:41:11.404] [cfork:master:19729] worker:19748 disconnect (exitedAfterDisconnect: false, state: disconnected, isDead: false, worker.disableRefork: true)
+[2019-05-21 15:41:11.404] [cfork:master:19729] don't fork, because worker:19748 will be kill soon
+[master] app_worker#7:19748 disconnect, suicide: false, state: disconnected, current workers: ["7","8"]
+[2019-05-21 15:41:11.405] [cfork:master:19729] worker:19748 exit (code: null, exitedAfterDisconnect: false, state: dead, isDead: true, isExpected: false, worker.disableRefork: true)
+exit Worker {
+  domain: null,
+  _events: { message: [Function], exit: [Function: reset] },
+  _eventsCount: 2,
+  _maxListeners: undefined,
+  exitedAfterDisconnect: false,
+  suicide: [Getter/Setter],
+  state: 'dead',
+  id: 7,
+  process: 
+   ChildProcess {
+     domain: null,
+     _events: 
+      { internalMessage: [Array],
+        error: [Function],
+        message: [Function] },
+     _eventsCount: 3,
+     _maxListeners: undefined,
+     _closesNeeded: 2,
+     _closesGot: 1,
+     connected: false,
+     signalCode: 'SIGINT',
+     exitCode: null,
+     killed: false,
+     spawnfile: '/usr/local/bin/node',
+     _handle: null,
+     spawnargs: 
+      [ '/usr/local/bin/node',
+        '/Users/seafly/code/pm/test/app.js',
+        '{"count":"2","exec":"test/app.js","clusterPort":57057}' ],
+     pid: 19748,
+     stdin: null,
+     stdout: null,
+     stderr: null,
+     stdio: [ null, null, null, null ],
+     channel: null,
+     _channel: [Getter/Setter],
+     _handleQueue: null,
+     _pendingMessage: null,
+     send: [Function],
+     _send: [Function],
+     disconnect: [Function],
+     _disconnect: [Function] },
+  disableRefork: true } null SIGINT
+[2019-05-21 15:41:11.410] [cfork:master:19729] worker:19749 exit (code: null, exitedAfterDisconnect: false, state: dead, isDead: true, isExpected: false, worker.disableRefork: true)
+exit Worker {
+  domain: null,
+  _events: { message: [Function] },
+  _eventsCount: 1,
+  _maxListeners: undefined,
+  exitedAfterDisconnect: false,
+  suicide: [Getter/Setter],
+  state: 'dead',
+  id: 8,
+  process: 
+   ChildProcess {
+     domain: null,
+     _events: 
+      { internalMessage: [Array],
+        error: [Function],
+        message: [Function] },
+     _eventsCount: 3,
+     _maxListeners: undefined,
+     _closesNeeded: 2,
+     _closesGot: 1,
+     connected: false,
+     signalCode: 'SIGINT',
+     exitCode: null,
+     killed: false,
+     spawnfile: '/usr/local/bin/node',
+     _handle: null,
+     spawnargs: 
+      [ '/usr/local/bin/node',
+        '/Users/seafly/code/pm/test/app.js',
+        '{"count":"2","exec":"test/app.js","clusterPort":57057}' ],
+     pid: 19749,
+     stdin: null,
+     stdout: null,
+     stderr: null,
+     stdio: [ null, null, null, null ],
+     channel: null,
+     _channel: [Getter/Setter],
+     _handleQueue: null,
+     _pendingMessage: null,
+     send: [Function],
+     _send: [Function],
+     disconnect: [Function],
+     _disconnect: [Function] },
+  disableRefork: true } null SIGINT
+[master] reload workers...
+[master] app_worker#9:19760 start, state: none, current workers: ["9","10"]
+[master] app_worker#10:19761 start, state: none, current workers: ["9","10"]

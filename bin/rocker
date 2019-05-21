@@ -3,8 +3,12 @@
 var commander = require('commander');
 var pkg       = require('../package.json');
 var rocker_bin = require('../lib/index.js');
-var path = require('path')
-const fs = require('fs')
+var path = require('path');
+var utils = require('../lib/utils/utils')
+var gen = require('../lib/gen/index')
+
+const isDev = utils.isDev()
+const fs = require('fs');
 const { Console } = require('console');
 
 commander.version(pkg.version)
@@ -18,14 +22,16 @@ commander.command('start [name|file|ecosystem|id...]')
   // .option('--watch', 'Watch folder for changes')
   .option('--node-version [major]', 'with --container, set a specific major Node.js version')
   .description('start and daemonize an app')
-  .action(function(cmd, opts) {
+  .action(async (cmd, opts) => {
     let exec = cmd && cmd[0]
     cmd = patchCommanderArg(cmd);
-    let count = commander.instances || null
+    let count = commander.instances || 1
     let logPath = commander.log || './'
     logPath = path.resolve(process.cwd(), logPath)
     setLogger(logPath)
-
+    if(!isDev){
+      await gen.default()
+    }
     var rocker = new rocker_bin({ count, exec })
     process.on('uncaughtException:', err => {
       console.log('uncaughtException', err)

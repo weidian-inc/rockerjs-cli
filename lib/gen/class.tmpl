@@ -1,0 +1,7 @@
+declare namespace RockerConfig {
+    <% items.forEach(function(item){ %>
+    export class <%= item.className%> { <% item.props.forEach(function(val){ %>
+        <%= val.key %>: <%= val.type %>; <% }); %>
+    }
+    <% }); %>
+}

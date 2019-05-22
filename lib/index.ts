@@ -42,16 +42,16 @@ class rocker_bin extends EventEmitter{
     process.once('SIGTERM', this.onSignal.bind(this, 'SIGTERM'));
 
     // process.once('exit', this.onExit.bind(this));
-    detectPort((err, port) => {
-      if (err) {
-        err.name = 'ClusterPortConflictError';
-        err.message = '[master] try get free port error, ' + err.message;
-        console.error(err);
-        process.exit(1);
-      }
-      this.options.clusterPort = port;
-      this.forkAppWorkers()
-    });
+    // detectPort((err, port) => {
+    //   if (err) {
+    //     err.name = 'ClusterPortConflictError';
+    //     err.message = '[master] try get free port error, ' + err.message;
+    //     console.error(err);
+    //     process.exit(1);
+    //   }
+    //   this.options.clusterPort = port;
+    // });
+    this.forkAppWorkers()
 
     // exit when worker exception
     this.workerManager.on('exception', ({ worker }) => {
@@ -105,14 +105,22 @@ class rocker_bin extends EventEmitter{
     cfork({
       exec: this.getAppWorkerFile(),
       args,
-      silent: false,
+      silent: true,
+      stdio: [0,'ipc','ipc'],
       count: this.options.count,
       refork: this.isProduction
     })
 
     cluster.on('fork', worker => {
+      // console.log('worker', worker);
       worker['disableRefork'] = true;
       this.workerManager.setWorker(worker);
+      worker.process.stdout.on('data', (msg) =>{
+        console.log(`[${worker.process.pid}]`, msg.toString());
+      });
+      worker.process.stderr.on('data', (err) =>{
+        console.error(`[${worker.process.pid}]`, err.toString());
+      });
       console.log('[master] app_worker#%s:%s start, state: %s, current workers: %j',
         worker.id, worker.process.pid, worker['state'], Object.keys(cluster.workers));
     });
@@ -121,12 +129,10 @@ class rocker_bin extends EventEmitter{
         worker.id, worker.process.pid, worker.exitedAfterDisconnect, worker['state'], Object.keys(cluster.workers));
     });
     cluster.on('exit', (worker, code, signal) => {
-      console.log('exit', worker, code, signal)
-      // this.onAppExit({ workerPid: worker.process.pid, code, signal })
+      console.log('exit')
     });
     cluster.on('listening', (worker, address) => {
-      console.log('listening')
-      // this.onAppStart({ workerPid: worker.process.pid, address })
+      
     });
   }
 
@@ -227,7 +233,6 @@ class rocker_bin extends EventEmitter{
 
   async genConf(that){
     await gen()
-    that.onReload()
   }
 
   watchAppConf(){

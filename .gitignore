@@ -2,5 +2,5 @@
 .idea/
 node_modules/
 .DS_Store
-stdout.log
-stderr.log
+./stdout.log
+./stderr.log

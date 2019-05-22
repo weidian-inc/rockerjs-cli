@@ -1,5 +1,4 @@
 'use strict';
-
 const EventEmitter = require('events');
 
 // worker manager to record worker forked by cluster

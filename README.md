@@ -3,14 +3,14 @@
 
 #### 安装
 
-    npm i @vdian/rocker-cli -g
+    npm i @rockerjs/cli -g
 
 #### 执行
     
     rocker start ./start.js -i 2 -l ./logs
 
 
-@vdian/rocker-cli 
+@rockerjs/cli 
 
 ##### 参数说明
 

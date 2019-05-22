@@ -3,6 +3,7 @@ import * as fs from "fs";
 import scandir from "sb-scandir";
 import * as ini from "ini";
 import * as ejs from "ejs";
+import * as fse from "fs-extra"
 
 const CONFIG_REG = /^app\.(?:(\w+?)\.)?config$/i;
 const CONFIG_TABLE = {};
@@ -14,6 +15,8 @@ const ENV = {
 };
 const excludeKey = ["port", "excludesDir"];
 const filterPrefix = "filter:";
+let typesPath = path.resolve(process.cwd(), 'types')
+fse.ensureDirSync(typesPath)
 
 function parseConfigFile(rootPath: string) {
     return scandir(rootPath, true, function(pth) {
@@ -76,7 +79,7 @@ function generate() {
     let ret = template({
         items
     });
-    fs.writeFileSync(path.join(__dirname, 'app.config.d.ts'), ret);
+    fs.writeFileSync(path.join(typesPath, 'app.config.d.ts'), ret);
 }
 
 process.on("unhandledRejection", (e,b) =>{

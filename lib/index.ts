@@ -28,9 +28,6 @@ class rocker_bin extends EventEmitter{
     this.options = options
     this.isProduction = isProduction()
     this.workerManager = new Manager();
-    this.on('app-exit', this.onAppExit.bind(this));
-    this.on('app-start', this.onAppStart.bind(this));
-    this.on('reload-worker', this.onReload.bind(this));
 
     // https://nodejs.org/api/process.html#process_signal_events
     // https://en.wikipedia.org/wiki/Unix_signal
@@ -45,7 +42,7 @@ class rocker_bin extends EventEmitter{
     // detectPort((err, port) => {
     //   if (err) {
     //     err.name = 'ClusterPortConflictError';
-    //     err.message = '[master] try get free port error, ' + err.message;
+    //     err.message = 'try get free port error, ' + err.message;
     //     console.error(err);
     //     process.exit(1);
     //   }
@@ -55,7 +52,7 @@ class rocker_bin extends EventEmitter{
 
     // exit when worker exception
     this.workerManager.on('exception', ({ worker }) => {
-      const err = new Error(`[master] ${worker} worker(s) alive, exit to avoid unknown state`);
+      const err = new Error(`${worker} worker(s) alive, exit to avoid unknown state`);
       err.name = 'ClusterWorkerExceptionError';
       err['count'] = { worker };
       console.error(err);
@@ -101,7 +98,7 @@ class rocker_bin extends EventEmitter{
     this.startSuccessCount = 0
 
     const args = [ JSON.stringify(this.options) ]
-    console.log('[master] start appWorker with args %j', args)
+    console.log('start appWorker with args %j', args)
     cfork({
       exec: this.getAppWorkerFile(),
       args,
@@ -116,23 +113,23 @@ class rocker_bin extends EventEmitter{
       worker['disableRefork'] = true;
       this.workerManager.setWorker(worker);
       worker.process.stdout.on('data', (msg) =>{
-        console.log(`[${worker.process.pid}]`, msg.toString());
+        console.log(`[worker](${worker.process.pid})`, msg.toString());
       });
       worker.process.stderr.on('data', (err) =>{
-        console.error(`[${worker.process.pid}]`, err.toString());
+        console.error(`[worker](${worker.process.pid})`, err.toString());
       });
-      console.log('[master] app_worker#%s:%s start, state: %s, current workers: %j',
+      console.log('app_worker#%s:%s start, state: %s, current workers: %j',
         worker.id, worker.process.pid, worker['state'], Object.keys(cluster.workers));
     });
     cluster.on('disconnect', worker => {
-      console.log('[master] app_worker#%s:%s disconnect, suicide: %s, state: %s, current workers: %j',
+      console.log('app_worker#%s:%s disconnect, suicide: %s, state: %s, current workers: %j',
         worker.id, worker.process.pid, worker.exitedAfterDisconnect, worker['state'], Object.keys(cluster.workers));
     });
     cluster.on('exit', (worker, code, signal) => {
       console.log('exit')
     });
     cluster.on('listening', (worker, address) => {
-      
+
     });
   }
 
@@ -156,7 +153,7 @@ class rocker_bin extends EventEmitter{
     worker.removeAllListeners();
     this.workerManager.deleteWorker(data.workerPid);
 
-    console.log('[master] app_worker#%s:%s start fail, exiting with code:1', worker.id, worker.process.pid);
+    console.log('app_worker#%s:%s start fail, exiting with code:1', worker.id, worker.process.pid);
     process.exit(1);
   }
 
@@ -167,7 +164,7 @@ class rocker_bin extends EventEmitter{
     this.startSuccessCount++;
 
     const remain = this.isAllAppWorkerStarted ? 0 : this.options.count - this.startSuccessCount;
-    console.log('[master] app_worker#%s:%s started at %s, remain %s (%sms)', worker.id, data.workerPid, address.port, remain, Date.now() - this.appStartTime);
+    console.log('app_worker#%s:%s started at %s, remain %s (%sms)', worker.id, data.workerPid, address.port, remain, Date.now() - this.appStartTime);
 
     // if app is started, it should enable this worker
     if (this.isAllAppWorkerStarted) {
@@ -191,19 +188,19 @@ class rocker_bin extends EventEmitter{
   }
 
   onExit(code) {
-    console.log('[master] exit with code:%s', code);
+    console.log('exit with code:%s', code);
   }
 
   onSignal(signal) {
     console.log('signal', signal)
     if (this.closed) return;
 
-    console.log('[master] receive signal %s, closing', signal);
+    console.log('receive signal %s, closing', signal);
     this.close();
   }
 
   onReload() {
-    console.log('[master] reload workers...');
+    console.log('reload workers...');
     for (const id in cluster.workers){
       const worker = cluster.workers[id];
       worker['isDevReload'] = true;
@@ -217,12 +214,12 @@ class rocker_bin extends EventEmitter{
     try {
       const legacyTimeout = process.env.MASTER_CLOSE_TIMEOUT || 5000;
       const appTimeout = process.env.APP_CLOSE_TIMEOUT || legacyTimeout;
-      console.log('[master] send kill SIGTERM to app workers, will exit with code:0 after %sms', appTimeout);
+      console.log('send kill SIGTERM to app workers, will exit with code:0 after %sms', appTimeout);
       await self.killAppWorkers(appTimeout);
-      console.log('[master] close done, exiting with code:0');
+      console.log('close done, exiting with code:0');
       process.exit(0);
     } catch (e){
-      console.error('[master] close with error: ', e);
+      console.error('close with error: ', e);
       process.exit(1);
     }
   }
@@ -231,7 +228,7 @@ class rocker_bin extends EventEmitter{
     return path.resolve(process.cwd(), this.options.exec || './test/app.js')
   }
 
-  async genConf(that){
+  async genConf(){
     await gen()
   }
 
@@ -241,7 +238,7 @@ class rocker_bin extends EventEmitter{
       ignored: /node_modules/,
       persistent: true
     }).on('all', (event, path) => {
-      throttled(this)
+      throttled()
     })
   }
 }

@@ -115,7 +115,11 @@ function setLogger() {
 
 function fotmatLog(args, type){
   if(typeof args[0] == 'string' || typeof args[0] == 'number'){
-    args[0] = `${moment().format('YYYY-MM-DD hh:mm:ss')} ${type} ` + args[0]
+    let info = `${moment().format('YYYY-MM-DD hh:mm:ss')} ${type} `
+    if(! /\[worker]\(\d+\)/.test(args[0]) ){
+      info += `[master](${process.pid}) `
+    }
+    args[0] = info + args[0]
   }else{
     console.log('type', typeof(args[0]));
     args[0].unshift(`${moment().format('YYYY-MM-DD hh:mm:ss')} ${type} `)

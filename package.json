@@ -1,9 +1,9 @@
 {
   "name": "@rockerjs/cli",
   "preferGlobal": true,
-  "version": "1.0.4",
+  "version": "1.0.5",
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=8.0.0"
   },
   "author": {
     "name": "flyseamomo",
@@ -16,11 +16,10 @@
     "test": ""
   },
   "bin": {
-    "rocker": "./bin/rocker"
+    "rocker": "./bin/rocker",
+    "rocker-cli": "./bin/rocker-cli"
   },
   "dependencies": {
-    "@types/lodash": "^4.14.129",
-    "@types/node": "^11.13.6",
     "await-event": "^2.1.0",
     "cfork": "^1.7.1",
     "chokidar": "^3.0.0",
@@ -36,15 +35,18 @@
     "mz-modules": "^2.1.0",
     "ps-tree": "^1.2.0",
     "sb-scandir": "^2.0.0",
-    "sendmessage": "^1.1.0"
+    "sendmessage": "^1.1.0",
+    "shelljs": "^0.8.3"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.129",
+    "@types/node": "^11.13.6",
     "mocha": "^5.2.0",
     "should": "^13"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/"
+    "url": "https://github.com/weidian-inc/rockerjs-cli"
   },
   "license": "ISC"
 }

@@ -7,8 +7,9 @@
 
 #### 执行
     
-    rocker start ./start.js -i 2 -l ./logs
+    rocker-cli start ./start.js -i 2
 
+    rocker 
 
 @rockerjs/cli 
 

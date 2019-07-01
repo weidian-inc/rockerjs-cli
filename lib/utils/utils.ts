@@ -1,3 +1,4 @@
+
 export function isProduction() {
     const serverEnv = process.env.NODE_ENV;
     if (serverEnv) {

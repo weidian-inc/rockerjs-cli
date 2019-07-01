@@ -6,8 +6,9 @@ import * as cluster from 'cluster'
 import { Manager } from './utils/manager'
 import terminate from './utils/terminate'
 import {isProduction, isDev} from './utils/utils'
-
+import { Messenger } from './utils/messager'
 import gen from './gen/index'
+import * as childprocess from 'child_process'
 import * as detectPort from 'detect-port'
 import * as chokidar from 'chokidar'
 import {throttle} from 'lodash'
@@ -22,13 +23,17 @@ class rocker_bin extends EventEmitter{
   startSuccessCount: number
   closed: boolean
   exec: string
+  messenger: any;
+  agentStartTime: number;
+  agentWorkerIndex: any;
+  logger: any;
 
   constructor(options){
     super()
     this.options = options
     this.isProduction = isProduction()
     this.workerManager = new Manager();
-
+    this.messenger = new Messenger(this);
     // https://nodejs.org/api/process.html#process_signal_events
     // https://en.wikipedia.org/wiki/Unix_signal
     // kill(2) Ctrl-C
@@ -129,7 +134,7 @@ class rocker_bin extends EventEmitter{
       console.log('exit')
     });
     cluster.on('listening', (worker, address) => {
-
+      this.appStart({ workerPid: worker.process.pid, address })
     });
   }
 
@@ -157,7 +162,7 @@ class rocker_bin extends EventEmitter{
     process.exit(1);
   }
 
-  onAppStart(data) {
+  appStart(data) {
     const worker = this.workerManager.getWorker(data.workerPid);
     const address = data.address;
 
@@ -182,9 +187,6 @@ class rocker_bin extends EventEmitter{
       const worker = cluster.workers[id];
       worker['disableRefork'] = false;
     }
-
-    address.protocal = this.options.https ? 'https' : 'http';
-    address.port = this.options.sticky ? this.options.port : address.port;
   }
 
   onExit(code) {
@@ -206,6 +208,50 @@ class rocker_bin extends EventEmitter{
       worker['isDevReload'] = true;
     }
     require('cluster-reload')(this.options.count);
+  }
+
+  forkAgentWorker() {
+    this.agentStartTime = Date.now();
+
+    const args = [ JSON.stringify(this.options) ];
+    const opt = {};
+
+    // add debug execArgv
+    const debugPort = process.env.EGG_AGENT_DEBUG_PORT || 5800;
+
+    const agentWorker = childprocess.fork(this.getAgentWorkerFile(), args, opt);
+    agentWorker['status'] = 'starting';
+    agentWorker['id'] = ++this.agentWorkerIndex;
+    this.workerManager.setAgent(agentWorker);
+
+    // send debug message
+    if (this.options.isDebug) {
+      this.messenger.send({ to: 'parent', from: 'agent', action: 'debug', data: { debugPort, pid: agentWorker.pid } });
+    }
+    // forwarding agent' message to messenger
+    agentWorker.on('message', msg => {
+      if (typeof msg === 'string') msg = { action: msg, data: msg };
+      msg.from = 'agent';
+      this.messenger.send(msg);
+    });
+    agentWorker.on('error', err => {
+      err.name = 'AgentWorkerError';
+      err['id'] = agentWorker['id'];
+      err['pid'] = agentWorker['pid'];
+      this.logger.error(err);
+    });
+    // agent exit message
+    agentWorker.once('exit', (code, signal) => {
+      this.messenger.send({
+        action: 'agent-exit',
+        data: { code, signal },
+        to: 'master',
+        from: 'agent',
+      });
+    });
+  }
+  getAgentWorkerFile() {
+    return path.join(process.cwd(), this.options.exec || './test/app.js');
   }
 
   async close() {

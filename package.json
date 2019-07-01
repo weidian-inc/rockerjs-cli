@@ -1,7 +1,7 @@
 {
   "name": "@rockerjs/cli",
   "preferGlobal": true,
-  "version": "1.0.5",
+  "version": "1.0.7",
   "engines": {
     "node": ">=8.0.0"
   },

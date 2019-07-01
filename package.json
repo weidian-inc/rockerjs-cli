@@ -17,7 +17,7 @@
   },
   "bin": {
     "rocker": "./bin/rocker",
-    "rocker-cli": "./bin/rocker-cli"
+    "rocker-tools": "./bin/rocker-tools"
   },
   "dependencies": {
     "await-event": "^2.1.0",

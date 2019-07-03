@@ -13,11 +13,18 @@
 
 #### 1.创建应用模板
 
-    rocker init demo
+    r init demo
 
-#### 2.启动应用进程
+#### 2.进入应用目录，安装依赖
 
-    rocker start start.js
+    cd ./demo
+    npm i
+
+#### 3.启动应用进程
+
+    r start index.js
+
+##### 开发环境默认启动了tsc -w
 
 ##### 参数说明
 
@@ -26,11 +33,12 @@ start [path] 入口文件相对路径
 -i [number] 启动实例数,默认启动1个
 
 
-#### 3.查看日志
 
-    rocker log
+#### 4.查看日志
 
-    rocker log err  //查看错误日志
+    r log
+
+    r log err  //查看错误日志
 
 
 @rockerjs/cli https://github.com/weidian-inc/rockerjs-cli

@@ -1,0 +1,43 @@
+#!/usr/bin/env node
+'use strict';
+var commander = require('commander')
+var pkg       = require('../package.json')
+var shell = require('shelljs')
+var path = require('path')
+var command = false
+
+commander.version(pkg.version)
+  .option('-v --version', 'print rocker version')
+  .option('-c --exec <path>', 'set a path for the process entry')
+  .option('-i --instances <number>', 'launch [number] instances (for networked app)(load balanced)')
+  .usage('[cmd] app');
+
+commander.command('log  [type]')
+  .description('tail -f log')
+  .action(cmd => {
+    command = 'log'
+    let type = cmd
+    const logPath = path.resolve(process.env.HOME, './rocker_logs')
+    let filePath
+    if(type == 'error'){
+      filePath = path.resolve(logPath, './stderr.log')
+    }else{
+      filePath = path.resolve(logPath, './stdout.log')
+    }
+    shell.exec(`tail -f ${filePath}`, {silent:false}, (stdout, stderr)=>{console.log(111, stdout,stderr)})
+  })
+
+commander.command('init [name]')
+  .description('clone rockerjs-demo')
+  .action(cmd => {
+    command = 'init'
+    let name = cmd
+    shell.exec(`git clone https://github.com/weidian-inc/rockerjs-demo; mv ./rockerjs-demo ./${name}; cd ./${name}; rm -rf .git`)
+  })
+
+commander.parse(process.argv)
+if(!command){
+  let count = commander.instances || 1
+  let exec = commander.exec || path.resolve(process.cwd(),'./start.js')
+  shell.exec(`nohup rocker-tools start ${exec} -i ${count} > /dev/null 2>&1 &`)
+}

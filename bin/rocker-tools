@@ -1,0 +1,129 @@
+#!/usr/bin/env node
+'use strict';
+var commander = require('commander')
+var pkg       = require('../package.json')
+var rocker_bin = require('../lib/index.js')
+var path = require('path')
+var utils = require('../lib/utils/utils')
+var gen = require('../lib/gen/index')
+var moment = require('moment')
+var fse = require('fs-extra')
+var shell = require('shelljs')
+
+const isDev = utils.isDev()
+const fs = require('fs');
+const { Console } = require('console');
+
+console.log('NODE_ENV', process.env.NODE_ENV);
+
+commander.version(pkg.version)
+  .option('-v --version', 'print rocker version')
+  .option('-n --name <name>', 'set a name for the process in the process list')
+  .option('-i --instances <number>', 'launch [number] instances (for networked app)(load balanced)')
+  .usage('[cmd] app');
+
+commander.command('start [name|file|ecosystem|id...]')
+  .option('--node-version [major]', 'with --container, set a specific major Node.js version')
+  .description('start and daemonize an app')
+  .action(async (cmd, opts) => {
+    let exec = cmd && cmd[0]
+    cmd = patchCommanderArg(cmd);
+    let count = commander.instances || 1
+    // let logPath = commander.log || './'
+    // logPath = path.resolve(process.cwd(), logPath)
+    setLogger()
+    if(isDev){
+      await gen.default()
+      shell.exec('nohup tsc -w > /dev/null 2>&1 &', {silent:true})
+    }
+
+    var rocker = new rocker_bin({ count, exec })
+    process.on('uncaughtException', err => {
+      console.log('uncaughtException', err)
+      rocker.onReload()
+    });
+    process.on('unhandledRejection', (reason, p) => {
+      console.log('unhandledRejection:', p, '原因：', reason)
+      rocker.onReload()
+    })
+  })
+
+commander.parse(process.argv)
+
+function patchCommanderArg(cmd) {
+  var argsIndex;
+  if ((argsIndex = commander.rawArgs.indexOf('--')) >= 0) {
+    var optargs = commander.rawArgs.slice(argsIndex + 1);
+    cmd = cmd.slice(0, cmd.indexOf(optargs[0]));
+  }
+  return cmd;
+}
+
+function setLogger() {
+  const _console = {
+    log: console.log,
+    info: console.info,
+    warn: console.warn,
+    error: console.error,
+    time: console.time,
+    timeEnd: console.timeEnd,
+    trace: console.trace,
+  }
+  
+  const logPath = path.resolve(process.env.HOME, './rocker_logs')
+  fse.ensureDirSync(logPath)
+
+  const output = fs.createWriteStream(path.resolve(logPath, './stdout.log'))
+  const errorOutput = fs.createWriteStream(path.resolve(logPath, './stderr.log'))
+
+  const logger = new Console(output, errorOutput)
+  global.console.log = function(...args) {
+    fotmatLog(args, 'LOG')
+    _console.log(...args);
+    logger.log(...args);
+  }
+  global.console.info = function(...args) {
+    fotmatLog(args, 'INFO')
+    _console.info(...args);
+    logger.info(...args);
+  }
+  global.console.warn = function(...args) {
+    fotmatLog(args, 'WARN')
+    _console.warn(...args);
+    logger.warn(...args);
+  }
+  global.console.error = function(...args) {
+    fotmatLog(args, 'ERROR')
+    _console.error(...args);
+    logger.error(...args);
+  }
+  global.console.time = function(...args) {
+    fotmatLog(args, 'TIME')
+    _console.time(...args);
+    logger.time(...args);
+  }
+  global.console.timeEnd = function(...args) {
+    fotmatLog(args, 'TIME')
+    _console.timeEnd(...args);
+    logger.timeEnd(...args);
+  }
+  global.console.trace = function(...args) {
+    fotmatLog(args, 'TARCE')
+    _console.trace(...args);
+    logger.trace(...args);
+  }
+
+}
+
+function fotmatLog(args, type){
+  if(typeof args[0] == 'string' || typeof args[0] == 'number'){
+    let info = `${moment().format('YYYY-MM-DD hh:mm:ss')} ${type} `
+    if(! /\[worker]\(\d+\)/.test(args[0]) ){
+      info += `[master](${process.pid}) `
+    }
+    args[0] = info + args[0]
+  }else{
+    console.log('type', typeof(args[0]));
+    args[0].unshift(`${moment().format('YYYY-MM-DD hh:mm:ss')} ${type} `)
+  }
+}

@@ -4,6 +4,7 @@ import scandir from "sb-scandir";
 import * as ini from "ini";
 import * as ejs from "ejs";
 import * as fse from "fs-extra"
+import { defaultsDeep } from "lodash"
 
 const CONFIG_REG = /^app\.(?:(\w+?)\.)?config$/i;
 const CONFIG_TABLE = {};
@@ -45,7 +46,7 @@ function parseConfigFile(rootPath: string) {
 function generate() {
     let finalConfig = {}, items = [], filters = [];
     Object.keys(CONFIG_TABLE).forEach((env) => {
-        finalConfig = Object.assign(finalConfig, CONFIG_TABLE[env]);
+        finalConfig = defaultsDeep(finalConfig, CONFIG_TABLE[env]);
     });
     let template = ejs.compile(fs.readFileSync(path.join(__dirname, "class.tmpl"), "utf8"), null);
 

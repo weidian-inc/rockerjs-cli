@@ -235,7 +235,7 @@ class rocker_bin extends EventEmitter{
   watchAppConf(){
     const throttled = throttle(this.genConf, 500, { 'trailing': false })
     chokidar.watch(process.cwd(), {
-      ignored: /node_modules/,
+      ignored: /node_modules|types|\.git/,
       persistent: true
     }).on('all', (event, path) => {
       throttled()

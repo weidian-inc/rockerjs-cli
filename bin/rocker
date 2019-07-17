@@ -4,7 +4,6 @@ var commander = require('commander')
 var pkg       = require('../package.json')
 var shell = require('shelljs')
 var path = require('path')
-var command = false
 
 commander.version(pkg.version)
   .option('-v --version', 'print rocker version')
@@ -15,7 +14,6 @@ commander.version(pkg.version)
 commander.command('log  [type]')
   .description('tail -f log')
   .action(cmd => {
-    command = 'log'
     let type = cmd
     const logPath = path.resolve(process.env.HOME, './rocker_logs')
     let filePath
@@ -24,20 +22,27 @@ commander.command('log  [type]')
     }else{
       filePath = path.resolve(logPath, './stdout.log')
     }
-    shell.exec(`tail -f ${filePath}`, {silent:false}, (stdout, stderr)=>{console.log(111, stdout,stderr)})
+    shell.exec(`tail -f ${filePath}`, {silent:false}, (stdout, stderr)=>{console.log(stdout,stderr)})
   })
 
 commander.command('init [name]')
   .description('clone rockerjs-demo')
   .action(cmd => {
-    command = 'init'
     let name = cmd
     shell.exec(`git clone https://github.com/weidian-inc/rockerjs-demo; mv ./rockerjs-demo ./${name}; cd ./${name}; rm -rf .git`)
   })
 
+commander.command('gen')
+  .action(async () => {
+    shell.exec(`nohup node ./rocker-tools gen &`, {silent:false}, (stdout, stderr)=>{console.log(stdout,stderr)})
+  })
+
+commander.command('start [name|file|ecosystem|id...]')
+  .description('start and daemonize an app')
+  .action(async (cmd, opts) => {
+    let exec = (cmd && cmd[0]) || path.resolve(process.cwd(),'./start.js')
+    let count = commander.instances || 1
+    shell.exec(`nohup rocker-tools start ${exec} -i ${count} > /dev/null 2>&1 &`)
+  })
+
 commander.parse(process.argv)
-if(!command){
-  let count = commander.instances || 1
-  let exec = commander.exec || path.resolve(process.cwd(),'./start.js')
-  shell.exec(`nohup rocker-tools start ${exec} -i ${count} > /dev/null 2>&1 &`)
-}

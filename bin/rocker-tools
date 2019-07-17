@@ -9,6 +9,8 @@ var gen = require('../lib/gen/index')
 var moment = require('moment')
 var fse = require('fs-extra')
 var shell = require('shelljs')
+var throttle = require('lodash').throttle
+var chokidar = require('chokidar')
 
 const isDev = utils.isDev()
 const fs = require('fs');
@@ -29,12 +31,12 @@ commander.command('start [name|file|ecosystem|id...]')
     let exec = cmd && cmd[0]
     cmd = patchCommanderArg(cmd);
     let count = commander.instances || 1
-    // let logPath = commander.log || './'
-    // logPath = path.resolve(process.cwd(), logPath)
+
     setLogger()
     if(isDev){
       await gen.default()
-      shell.exec('nohup tsc -w > /dev/null 2>&1 &', {silent:true})
+      let localPath = process.cwd()
+      shell.exec(`cd ${localPath}; nohup tsc -w > /dev/null 2>&1 &`, {silent:true})
     }
 
     var rocker = new rocker_bin({ count, exec })
@@ -45,6 +47,23 @@ commander.command('start [name|file|ecosystem|id...]')
     process.on('unhandledRejection', (reason, p) => {
       console.log('unhandledRejection:', p, '原因：', reason)
       rocker.onReload()
+    })
+  })
+
+
+commander.command('gen')
+  .action(async cmd => {
+    console.log('gen');
+    if(isDev){
+      await gen.default()
+    }
+
+    const throttled = throttle(gen.default, 500, { 'trailing': false })
+    chokidar.watch(process.cwd(), {
+      ignored: /node_modules|types|\.git/,
+      persistent: true
+    }).on('all', (event, path) => {
+      throttled()
     })
   })
 

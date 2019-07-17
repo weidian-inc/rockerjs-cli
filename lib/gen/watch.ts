@@ -5,7 +5,7 @@ import * as chokidar from 'chokidar'
     await gen()
     const throttled = throttle(gen, 500, { 'trailing': false })
     chokidar.watch(process.cwd(), {
-      ignored: /node_modules/,
+      ignored: /node_modules|types|\.git/,
       persistent: true
     }).on('all', (event, path) => {
       throttled()

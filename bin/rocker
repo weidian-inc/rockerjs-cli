@@ -32,17 +32,18 @@ commander.command('init [name]')
     shell.exec(`git clone https://github.com/weidian-inc/rockerjs-demo; mv ./rockerjs-demo ./${name}; cd ./${name}; rm -rf .git`)
   })
 
-commander.command('gen')
+commander.command('dev')
   .action(async () => {
-    shell.exec(`nohup node ./rocker-tools gen &`, {silent:false}, (stdout, stderr)=>{console.log(stdout,stderr)})
+    shell.exec(`node ./bin/rocker-tools dev`, {silent:false}, (stdout, stderr)=>{console.log(stdout,stderr)})
   })
 
 commander.command('start [name|file|ecosystem|id...]')
   .description('start and daemonize an app')
   .action(async (cmd, opts) => {
-    let exec = (cmd && cmd[0]) || path.resolve(process.cwd(),'./start.js')
+    let exec = cmd && cmd[0]
     let count = commander.instances || 1
-    shell.exec(`nohup rocker-tools start ${exec} -i ${count} > /dev/null 2>&1 &`)
+    shell.exec(`node ./bin/rocker-tools start ${exec} -i ${count}`, {silent:false}, (stdout, stderr)=>{console.log(stdout,stderr)})
+    // shell.exec(`nohup rocker-tools start ${exec} -i ${count} > /dev/null 2>&1 &`)
   })
 
 commander.parse(process.argv)

@@ -5,14 +5,9 @@ import * as EventEmitter from 'events'
 import * as cluster from 'cluster'
 import { Manager } from './utils/manager'
 import terminate from './utils/terminate'
-import {isProduction, isDev} from './utils/utils'
+import { isProduction } from './utils/utils'
 
-import gen from './gen/index'
-import * as detectPort from 'detect-port'
-import * as chokidar from 'chokidar'
-import {throttle} from 'lodash'
-
-class rocker_bin extends EventEmitter{
+export class Client extends EventEmitter{
 
   options: any
   isProduction: boolean
@@ -38,16 +33,6 @@ class rocker_bin extends EventEmitter{
     // kill(15) default
     process.once('SIGTERM', this.onSignal.bind(this, 'SIGTERM'));
 
-    // process.once('exit', this.onExit.bind(this));
-    // detectPort((err, port) => {
-    //   if (err) {
-    //     err.name = 'ClusterPortConflictError';
-    //     err.message = 'try get free port error, ' + err.message;
-    //     console.error(err);
-    //     process.exit(1);
-    //   }
-    //   this.options.clusterPort = port;
-    // });
     this.forkAppWorkers()
 
     // exit when worker exception
@@ -59,23 +44,20 @@ class rocker_bin extends EventEmitter{
       process.exit(1);
     });
 
-    if(isDev()){
-      this.watchAppConf()
-    }
   }
   
-  startMasterSocketServer(cb) {
-    // Create the outside facing server listening on our port.
-    require('net').createServer({ pauseOnConnect: true }, connection => {
-      // worker. Get the worker for this connection's source IP and pass
-      if (!connection.remoteAddress) {
-        connection.destroy();
-      } else {
-        const worker = this.stickyWorker(connection.remoteAddress);
-        worker.send('sticky-session:connection', connection);
-      }
-    }).listen(this.options.port, cb);
-  }
+  // startMasterSocketServer(cb) {
+  //   // Create the outside facing server listening on our port.
+  //   require('net').createServer({ pauseOnConnect: true }, connection => {
+  //     // worker. Get the worker for this connection's source IP and pass
+  //     if (!connection.remoteAddress) {
+  //       connection.destroy();
+  //     } else {
+  //       const worker = this.stickyWorker(connection.remoteAddress);
+  //       worker.send('sticky-session:connection', connection);
+  //     }
+  //   }).listen(this.options.port, cb);
+  // }
 
   stickyWorker(ip) {
     const workerNumbers = this.options.count;
@@ -109,7 +91,6 @@ class rocker_bin extends EventEmitter{
     })
 
     cluster.on('fork', worker => {
-      // console.log('worker', worker);
       worker['disableRefork'] = true;
       this.workerManager.setWorker(worker);
       worker.process.stdout.on('data', (msg) =>{
@@ -225,22 +206,8 @@ class rocker_bin extends EventEmitter{
   }
 
   getAppWorkerFile() {
+    // return './lib/entry.js'
     return path.resolve(process.cwd(), this.options.exec || './test/app.js')
   }
 
-  async genConf(){
-    await gen()
-  }
-
-  watchAppConf(){
-    const throttled = throttle(this.genConf, 500, { 'trailing': false })
-    chokidar.watch(process.cwd(), {
-      ignored: /node_modules|types|\.git/,
-      persistent: true
-    }).on('all', (event, path) => {
-      throttled()
-    })
-  }
 }
-
-module.exports = rocker_bin

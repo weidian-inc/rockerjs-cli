@@ -1,7 +1,7 @@
 import gen from './index'
 import {throttle} from 'lodash'
 import * as chokidar from 'chokidar'
-; (async () => {
+export default async function() {
     await gen()
     const throttled = throttle(gen, 500, { 'trailing': false })
     chokidar.watch(process.cwd(), {
@@ -10,4 +10,4 @@ import * as chokidar from 'chokidar'
     }).on('all', (event, path) => {
       throttled()
     })
-})()
+}

@@ -1,0 +1,18 @@
+{
+    "name": "decorate-open",
+    "script": "./test/app.js",
+    "env": {
+        "NODE_ENV": "development"
+    },
+    "env_production": {
+        "NODE_ENV": "production"
+    },
+    "instances": 4,
+    "max_restarts": 3,
+    "restart_delay": 5000,
+    "log_date_format": "YYYY-MM-DD HH:mm Z",
+    "combine_logs": true,
+    "log_file": "/Users/seafly/pm2/startup.log",
+    "out_file": "/Users/seafly/pm2/out.log",
+    "error_file": "/Users/seafly/pm2/error.log"
+}

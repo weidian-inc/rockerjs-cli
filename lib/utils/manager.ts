@@ -4,6 +4,9 @@ const EventEmitter = require('events');
 // worker manager to record worker forked by cluster
 // can do some check stuff here to monitor the healthy
 export class Manager extends EventEmitter {
+  exception: number
+  workers: any
+  timer: any
   constructor() {
     super();
     this.workers = new Map();

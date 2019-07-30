@@ -40,5 +40,9 @@ start [path] 入口文件相对路径
 
     r log err  //查看错误日志
 
+#### 5.开发编译配置
+
+    r dev
+
 
 @rockerjs/cli https://github.com/weidian-inc/rockerjs-cli

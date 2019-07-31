@@ -1,49 +1,53 @@
 #!/usr/bin/env node
+
 'use strict';
-var commander = require('commander')
-var pkg       = require('../package.json')
-var shell = require('shelljs')
-var path = require('path')
+const commander = require('commander')
+const pkg = require('../package.json')
+const shell = require('shelljs')
+const fs = require('fs')
+const path = require('path')
+const  { Master } = require('../lib/Master.js')
+const master = new Master()
 
 commander.version(pkg.version)
-  .option('-v --version', 'print rocker version')
-  .option('-c --exec <path>', 'set a path for the process entry')
-  .option('-i --instances <number>', 'launch [number] instances (for networked app)(load balanced)')
-  .usage('[cmd] app');
+    .option('-v --version', 'print rocker version')
+    .option('-c --exec <path>', 'set a path for the process entry')
+    .option('-i --instances <number>', 'launch [number] instances (for networked app)(load balanced)')
+    .usage('[cmd] app');
 
-commander.command('log  [type]')
-  .description('tail -f log')
-  .action(cmd => {
-    let type = cmd
-    const logPath = path.resolve(process.env.HOME, './rocker_logs')
-    let filePath
-    if(type == 'error'){
-      filePath = path.resolve(logPath, './stderr.log')
-    }else{
-      filePath = path.resolve(logPath, './stdout.log')
-    }
-    shell.exec(`tail -f ${filePath}`, {silent:false}, (stdout, stderr)=>{console.log(stdout,stderr)})
-  })
+commander.command('log  [name]')
+    .description('tail -f log')
+    .action(cmd => {
+        master.readLog(cmd)
+    })
 
 commander.command('init [name]')
-  .description('clone rockerjs-demo')
-  .action(cmd => {
-    let name = cmd
-    shell.exec(`git clone https://github.com/weidian-inc/rockerjs-demo; mv ./rockerjs-demo ./${name}; cd ./${name}; rm -rf .git`)
-  })
+    .description('clone rockerjs-demo')
+    .action(cmd => {
+        let name = cmd
+        shell.exec(`git clone https://github.com/weidian-inc/rockerjs-demo; mv ./rockerjs-demo ./${name}; cd ./${name}; rm -rf .git`)
+    })
 
 commander.command('dev')
-  .action(async () => {
-    shell.exec(`node ./bin/rocker-tools dev`, {silent:false}, (stdout, stderr)=>{console.log(stdout,stderr)})
-  })
+    .action(async () => {
+        shell.exec(`nohup rocker-tools dev`, {
+            silent: false
+        }, (stdout, stderr) => {
+            console.log(stdout, stderr)
+        })
+    })
 
 commander.command('start [name|file|ecosystem|id...]')
-  .description('start and daemonize an app')
-  .action(async (cmd, opts) => {
-    let exec = cmd && cmd[0]
-    let count = commander.instances || 1
-    shell.exec(`node ./bin/rocker-tools start ${exec} -i ${count}`, {silent:false}, (stdout, stderr)=>{console.log(stdout,stderr)})
-    // shell.exec(`nohup rocker-tools start ${exec} -i ${count} > /dev/null 2>&1 &`)
-  })
+    .description('start and daemonize an app')
+    .action(async (cmd, opts) => {
+        let exec = cmd && cmd[0]
+        let count = commander.instances || 1
+        // shell.exec(`node ./bin/rocker-tools start ${exec} -i ${count}`, {
+        //     silent: false
+        // }, (stdout, stderr) => {
+        //     console.log(stdout, stderr)
+        // })
+        shell.exec(`nohup rocker-tools start ${exec} -i ${count} > /dev/null 2>&1 &`)
+    })
 
 commander.parse(process.argv)

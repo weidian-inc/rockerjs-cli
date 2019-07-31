@@ -3,9 +3,11 @@ import * as path from 'path'
 import * as cfork from 'cfork'
 import * as EventEmitter from 'events'
 import * as cluster from 'cluster'
+import * as fs from 'fs'
 import { Manager } from './utils/manager'
 import terminate from './utils/terminate'
 import { isProduction } from './utils/utils'
+import { fstat } from 'fs';
 
 export class Client extends EventEmitter{
 
@@ -191,12 +193,12 @@ export class Client extends EventEmitter{
 
   async close() {
     this.closed = true;
-    const self = this;
     try {
       const legacyTimeout = process.env.MASTER_CLOSE_TIMEOUT || 5000;
       const appTimeout = process.env.APP_CLOSE_TIMEOUT || legacyTimeout;
       console.log('send kill SIGTERM to app workers, will exit with code:0 after %sms', appTimeout);
-      await self.killAppWorkers(appTimeout);
+      await this.killAppWorkers(appTimeout);
+      this.rmConfigFile()
       console.log('close done, exiting with code:0');
       process.exit(0);
     } catch (e){
@@ -206,8 +208,12 @@ export class Client extends EventEmitter{
   }
 
   getAppWorkerFile() {
-    // return './lib/entry.js'
-    return path.resolve(process.cwd(), this.options.exec || './test/app.js')
+    return './lib/entry.js'
+    // return path.resolve(process.cwd(), this.options.exec || './test/app.js')
   }
 
+  rmConfigFile(){
+    const configPath = path.resolve(process.env.HOME, './.rocker_config', `./${this.options.name}.json`)
+    fs.unlinkSync(configPath)
+  }
 }

@@ -34,6 +34,7 @@
     "moment": "^2.24.0",
     "mz-modules": "^2.1.0",
     "ps-tree": "^1.2.0",
+    "runscript": "^1.4.0",
     "sb-scandir": "^2.0.0",
     "sendmessage": "^1.1.0",
     "shelljs": "^0.8.3"

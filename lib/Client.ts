@@ -62,7 +62,7 @@ export class Client extends EventEmitter{
   // }
 
   stickyWorker(ip) {
-    const workerNumbers = this.options.count;
+    const workerNumbers = this.options.instances;
     const ws = this.workerManager.listWorkerIds();
 
     let s:any = '';
@@ -88,7 +88,7 @@ export class Client extends EventEmitter{
       args,
       silent: true,
       stdio: [0,'ipc','ipc'],
-      count: this.options.count,
+      count: this.options.instances,
       refork: this.isProduction
     })
 
@@ -146,7 +146,7 @@ export class Client extends EventEmitter{
 
     this.startSuccessCount++;
 
-    const remain = this.isAllAppWorkerStarted ? 0 : this.options.count - this.startSuccessCount;
+    const remain = this.isAllAppWorkerStarted ? 0 : this.options.instances - this.startSuccessCount;
     console.log('app_worker#%s:%s started at %s, remain %s (%sms)', worker.id, data.workerPid, address.port, remain, Date.now() - this.appStartTime);
 
     // if app is started, it should enable this worker
@@ -154,7 +154,7 @@ export class Client extends EventEmitter{
       worker.disableRefork = false;
     }
 
-    if (this.isAllAppWorkerStarted || this.startSuccessCount < this.options.count) {
+    if (this.isAllAppWorkerStarted || this.startSuccessCount < this.options.instances) {
       return;
     }
 
@@ -188,7 +188,7 @@ export class Client extends EventEmitter{
       const worker = cluster.workers[id];
       worker['isDevReload'] = true;
     }
-    require('cluster-reload')(this.options.count);
+    require('cluster-reload')(this.options.instances);
   }
 
   async close() {

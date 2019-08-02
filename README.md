@@ -22,13 +22,11 @@
 
 #### 3.启动应用进程
 
-    r start index.js
-
-##### 开发环境默认启动了tsc -w
+    r start [path]
 
 ##### 参数说明
 
-start [path] 入口文件相对路径
+start [path] 入口文件相对路径或者.json配置文件
 
 -i [number] 启动实例数,默认启动1个
 
@@ -36,13 +34,24 @@ start [path] 入口文件相对路径
 
 #### 4.查看日志
 
-    r log
+    r log [name]
 
-    r log err  //查看错误日志
+##### 参数说明
+
+[name] 应用名，如果为空则输出所有应用的日志
 
 #### 5.开发编译配置
 
+监听config配置并编译成app.config.d.ts
+
     r dev
 
+#### 6.关闭应用程序
+
+    r kill [name]
+
+##### 参数说明
+
+[name] 应用名，如果为空则输出所有应用的日志
 
 @rockerjs/cli https://github.com/weidian-inc/rockerjs-cli

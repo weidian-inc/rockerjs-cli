@@ -28,6 +28,12 @@ commander.command('init [name]')
         shell.exec(`git clone https://github.com/weidian-inc/rockerjs-demo; mv ./rockerjs-demo ./${name}; cd ./${name}; rm -rf .git`)
     })
 
+commander.command('kill [name]')
+    .description('kill -9 app')
+    .action(cmd => {
+        master.kill(cmd)
+    })
+
 commander.command('dev')
     .action(async () => {
         shell.exec(`nohup rocker-tools dev`, {

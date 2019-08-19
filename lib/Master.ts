@@ -2,10 +2,11 @@ import { Client }  from './Client'
 import { setLogger }  from './utils/logManager'
 import * as fs from 'fs'
 import * as path from 'path'
-import * as fse from 'fs-extra'
+import { ensureDirSync } from 'fs-extra'
 import { isDev, findNodeProcess } from '../lib/utils/utils'
 import watchAppConf from './gen/watch'
-import * as shell from 'shelljs'
+import { exec } from 'shelljs'
+import * as Table from 'cli-table-redemption'
 
 export class Master {
     configPath: string
@@ -13,11 +14,11 @@ export class Master {
         this.configPath = path.resolve(process.env.HOME, './.rocker_config')
     }
 
-    start(cmd, commander){
-        let exec = cmd && cmd[0], options = {}
-        if(exec.match(/\.json/)){
-            const isAbsolute = path.isAbsolute(exec)
-            const file_path = isAbsolute ? exec : path.join(process.cwd(), exec)
+    start(cmd: string[], commander: any){
+        let filePath = cmd && cmd[0], options = {}
+        if(filePath.match(/\.json/)){
+            const isAbsolute = path.isAbsolute(filePath)
+            const file_path = isAbsolute ? filePath : path.join(process.cwd(), filePath)
             try {
               options = JSON.parse(fs.readFileSync(file_path).toString())
               process.title = options['name']
@@ -28,20 +29,21 @@ export class Master {
             }
         }else{
             options['instances'] = commander.instances
-            options['exec'] = exec
+            options['exec'] = filePath
 
             const pkgInfo = require(path.join(process.cwd(), 'package.json'));
             process.title = options['name'] = `rocker-server-${pkgInfo.name}`
 
             const defaultLogPath = path.resolve(process.env.HOME, './rocker_logs')
-            fse.ensureDirSync(defaultLogPath)
+            ensureDirSync(defaultLogPath)
             options['out_file'] = path.resolve(defaultLogPath, './stdout.log')
             options['error_file'] = path.resolve(defaultLogPath, './stderr.log')
         }
+        options['exec'] = path.resolve(process.cwd(), options['exec'] || './test/app.js')
         this.initClient(options)
     }
 
-    initClient(options){
+    initClient(options: any){
         setLogger(options)
         const client = new Client(options)
         process.on('uncaughtException', err => {
@@ -62,14 +64,14 @@ export class Master {
         }
     }
 
-    writeConfigFile(options){
-        fse.ensureDirSync(this.configPath)
+    writeConfigFile(options: any){
+        ensureDirSync(this.configPath)
         fs.writeFile(path.resolve(this.configPath, `./${options.name}.json`), JSON.stringify(options), err => {
             console.log('err', err);
         })
     }
 
-    getConfig(name){
+    getConfig(name?: string){
         const logPath = path.resolve(process.env.HOME, './.rocker_config')
         const files = fs.readdirSync(logPath)
         const configs = []
@@ -83,7 +85,7 @@ export class Master {
         return configs
     }
 
-    readLog(name){
+    readLog(name?: string){
         const configs = this.getConfig(name)
         const logPaths = []
         configs.map( config => {
@@ -91,32 +93,52 @@ export class Master {
             logPaths.push(config.error_file)
         })
         logPaths.map( log =>{
-            shell.exec(`tail -fn 20 ${log}`, {silent:false}, (stdout, stderr)=>{console.log(stdout,stderr)})
-            // let size = Math.max(0, fs.statSync(log).size - (20 * 200));
-            // let fd = fs.createReadStream( log, { start: size, autoClose: false })
-            // fd.on('data', data => {
-            //     console.log('chunk', data.toString())
-            // })
-            // fd.on('end', ()=>{
-            //     console.log('end');
-            // })
+            exec(`tail -fn 20 ${log}`, {silent:false}, (stdout, stderr)=>{console.log(stdout,stderr)})
         })
     }
 
-    async kill(name){
+    async getProcessList(name?: string){
         const configs = this.getConfig(name)
-        const names = []
+        const names: string[] = []
         configs.map( config => {
             names.push(config.name)
         })
-        const process = await findNodeProcess(item => names.includes(item.cmd.replace(/(^\s*)|(\s*$)/g, "")))
-        const pids = process.map( item => item.pid )
+        let processList = await findNodeProcess(names)
+        processList = processList.map( item => {
+            configs.map( config => {
+                if(item.name == config.name){
+                    item = Object.assign(item, config)
+                }
+            })
+            return item
+        })
+        return processList
+    }
+
+    async kill(name?: string){
+        const processList = await this.getProcessList(name)
+        const pids = processList.map( item => item.pid )
         if(pids){
-            shell.exec(`kill ${pids.join(' ')}`, {
+            exec(`kill ${pids.join(' ')}`, {
                 silent: false
             }, (stdout, stderr) => {
-                console.log(stdout, stderr)
+                if(stderr){
+                    console.log('stderr', stderr)
+                }else{
+                    console.log('kill success!')
+                }
             })
         }
+    }
+
+    async list(){
+        const processList = await this.getProcessList()
+        const table = new Table({
+            head: ['pid', 'name', 'instances', 'execFile', 'logFile']
+        })
+        processList.map( item => {
+            table.push([item.pid, item.name, item.instances, item.exec, item.out_file])
+        })
+        console.log(table.toString())
     }
 }

@@ -1,9 +1,9 @@
 import * as path from "path";
 import * as fs from "fs";
 import scandir from "sb-scandir";
-import * as ini from "ini";
-import * as ejs from "ejs";
-import * as fse from "fs-extra"
+import { parse } from "ini";
+import { compile } from "ejs";
+import { ensureDirSync } from "fs-extra"
 import { defaultsDeep } from "lodash"
 
 const CONFIG_REG = /^app\.(?:(\w+?)\.)?config$/i;
@@ -17,7 +17,7 @@ const ENV = {
 const excludeKey = ["port", "excludesDir"];
 const filterPrefix = "filter:";
 let typesPath = path.resolve(process.cwd(), 'types')
-fse.ensureDirSync(typesPath)
+ensureDirSync(typesPath)
 
 function parseConfigFile(rootPath: string) {
     return scandir(rootPath, true, function(pth) {
@@ -36,8 +36,8 @@ function parseConfigFile(rootPath: string) {
             const baseName = path.basename(fpath);
             const matchArray = baseName.match(CONFIG_REG),
             configEnv = matchArray && matchArray[1];
-            configEnv ? (CONFIG_TABLE[configEnv] ? Object.assign(CONFIG_TABLE[configEnv], ini.parse(fs.readFileSync(fpath, "utf-8"))) : CONFIG_TABLE[configEnv] = ini.parse(fs.readFileSync(fpath, "utf-8")))
-                : (CONFIG_TABLE[ENV.PROD] ? Object.assign(CONFIG_TABLE[ENV.PROD], ini.parse(fs.readFileSync(fpath, "utf-8"))) : CONFIG_TABLE[ENV.PROD] = ini.parse(fs.readFileSync(fpath, "utf-8")));
+            configEnv ? (CONFIG_TABLE[configEnv] ? Object.assign(CONFIG_TABLE[configEnv], parse(fs.readFileSync(fpath, "utf-8"))) : CONFIG_TABLE[configEnv] = parse(fs.readFileSync(fpath, "utf-8")))
+                : (CONFIG_TABLE[ENV.PROD] ? Object.assign(CONFIG_TABLE[ENV.PROD], parse(fs.readFileSync(fpath, "utf-8"))) : CONFIG_TABLE[ENV.PROD] = parse(fs.readFileSync(fpath, "utf-8")));
         });
         return CONFIG_TABLE;
     });
@@ -48,7 +48,7 @@ function generate() {
     Object.keys(CONFIG_TABLE).forEach((env) => {
         finalConfig = defaultsDeep(finalConfig, CONFIG_TABLE[env]);
     });
-    let template = ejs.compile(fs.readFileSync(path.join(__dirname, "class.tmpl"), "utf8"), null);
+    let template = compile(fs.readFileSync(path.join(__dirname, "class.tmpl"), "utf8"), null);
 
     Object.keys(finalConfig).forEach((key) => {
         if (excludeKey.includes(key)) {

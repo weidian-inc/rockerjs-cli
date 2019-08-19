@@ -7,7 +7,6 @@ import * as fs from 'fs'
 import { Manager } from './utils/manager'
 import terminate from './utils/terminate'
 import { isProduction } from './utils/utils'
-import { fstat } from 'fs';
 
 export class Client extends EventEmitter{
 
@@ -20,30 +19,30 @@ export class Client extends EventEmitter{
   closed: boolean
   exec: string
 
-  constructor(options){
+  constructor(options: any){
     super()
     this.options = options
     this.isProduction = isProduction()
-    this.workerManager = new Manager();
+    this.workerManager = new Manager()
 
     // https://nodejs.org/api/process.html#process_signal_events
     // https://en.wikipedia.org/wiki/Unix_signal
     // kill(2) Ctrl-C
-    process.once('SIGINT', this.onSignal.bind(this, 'SIGINT'));
+    process.once('SIGINT', this.onSignal.bind(this, 'SIGINT'))
     // kill(3) Ctrl-\
-    process.once('SIGQUIT', this.onSignal.bind(this, 'SIGQUIT'));
+    process.once('SIGQUIT', this.onSignal.bind(this, 'SIGQUIT'))
     // kill(15) default
-    process.once('SIGTERM', this.onSignal.bind(this, 'SIGTERM'));
+    process.once('SIGTERM', this.onSignal.bind(this, 'SIGTERM'))
 
     this.forkAppWorkers()
 
     // exit when worker exception
     this.workerManager.on('exception', ({ worker }) => {
-      const err = new Error(`${worker} worker(s) alive, exit to avoid unknown state`);
-      err.name = 'ClusterWorkerExceptionError';
-      err['count'] = { worker };
-      console.error(err);
-      process.exit(1);
+      const err = new Error(`${worker} worker(s) alive, exit to avoid unknown state`)
+      err.name = 'ClusterWorkerExceptionError'
+      err['count'] = { worker }
+      console.error(err)
+      process.exit(1)
     });
 
   }
@@ -61,20 +60,20 @@ export class Client extends EventEmitter{
   //   }).listen(this.options.port, cb);
   // }
 
-  stickyWorker(ip) {
-    const workerNumbers = this.options.instances;
-    const ws = this.workerManager.listWorkerIds();
+  // stickyWorker(ip: string) {
+  //   const workerNumbers = this.options.instances;
+  //   const ws = this.workerManager.listWorkerIds();
 
-    let s:any = '';
-    for (let i = 0; i < ip.length; i++) {
-      if (!isNaN(ip[i])) {
-        s += ip[i];
-      }
-    }
-    s = Number(s);
-    const pid = ws[s % workerNumbers];
-    return this.workerManager.getWorker(pid);
-  }
+  //   let s:any = '';
+  //   for (let i = 0; i < ip.length; i++) {
+  //     if (!isNaN(ip[i])) {
+  //       s += ip[i];
+  //     }
+  //   }
+  //   s = Number(s);
+  //   const pid = ws[s % workerNumbers];
+  //   return this.workerManager.getWorker(pid);
+  // }
 
   forkAppWorkers(){
     this.appStartTime = Date.now()
@@ -96,30 +95,27 @@ export class Client extends EventEmitter{
       worker['disableRefork'] = true;
       this.workerManager.setWorker(worker);
       worker.process.stdout.on('data', (msg) =>{
-        console.log(`[worker](${worker.process.pid})`, msg.toString());
+        console.log(`[worker](${worker.process.pid})`, msg.toString())
       });
       worker.process.stderr.on('data', (err) =>{
-        console.error(`[worker](${worker.process.pid})`, err.toString());
+        console.error(`[worker](${worker.process.pid})`, err.toString())
       });
       console.log('app_worker#%s:%s start, state: %s, current workers: %j',
-        worker.id, worker.process.pid, worker['state'], Object.keys(cluster.workers));
+        worker.id, worker.process.pid, worker['state'], Object.keys(cluster.workers))
     });
     cluster.on('disconnect', worker => {
       console.log('app_worker#%s:%s disconnect, suicide: %s, state: %s, current workers: %j',
-        worker.id, worker.process.pid, worker.exitedAfterDisconnect, worker['state'], Object.keys(cluster.workers));
-    });
+        worker.id, worker.process.pid, worker.exitedAfterDisconnect, worker['state'], Object.keys(cluster.workers))
+    })
     cluster.on('exit', (worker, code, signal) => {
       console.log('exit')
-    });
-    cluster.on('listening', (worker, address) => {
-
-    });
+    })
   }
 
-  async killAppWorkers(timeout) {
+  async killAppWorkers(timeout: number) {
     let arr = []
     for(const id in cluster.workers){
-      const worker = cluster.workers[id];
+      const worker = cluster.workers[id]
       worker['disableRefork'] = true;
       arr.push(terminate(worker, timeout))
     }
@@ -127,27 +123,27 @@ export class Client extends EventEmitter{
     return arr
   }
   
-  onAppExit(data) {
-    if (this.closed) return;
+  onAppExit(data: any) {
+    if (this.closed) return
 
-    const worker = this.workerManager.getWorker(data.workerPid);
+    const worker = this.workerManager.getWorker(data.workerPid)
 
     // remove all listeners to avoid memory leak
-    worker.removeAllListeners();
-    this.workerManager.deleteWorker(data.workerPid);
+    worker.removeAllListeners()
+    this.workerManager.deleteWorker(data.workerPid)
 
-    console.log('app_worker#%s:%s start fail, exiting with code:1', worker.id, worker.process.pid);
+    console.log('app_worker#%s:%s start fail, exiting with code:1', worker.id, worker.process.pid)
     process.exit(1);
   }
 
-  onAppStart(data) {
-    const worker = this.workerManager.getWorker(data.workerPid);
-    const address = data.address;
+  onAppStart(data: any) {
+    const worker = this.workerManager.getWorker(data.workerPid)
+    const address = data.address
 
-    this.startSuccessCount++;
+    this.startSuccessCount++
 
-    const remain = this.isAllAppWorkerStarted ? 0 : this.options.instances - this.startSuccessCount;
-    console.log('app_worker#%s:%s started at %s, remain %s (%sms)', worker.id, data.workerPid, address.port, remain, Date.now() - this.appStartTime);
+    const remain = this.isAllAppWorkerStarted ? 0 : this.options.instances - this.startSuccessCount
+    console.log('app_worker#%s:%s started at %s, remain %s (%sms)', worker.id, data.workerPid, address.port, remain, Date.now() - this.appStartTime)
 
     // if app is started, it should enable this worker
     if (this.isAllAppWorkerStarted) {
@@ -158,58 +154,55 @@ export class Client extends EventEmitter{
       return;
     }
 
-    this.isAllAppWorkerStarted = true;
+    this.isAllAppWorkerStarted = true
 
     // enable all workers when app started
     for (const id in cluster.workers) {
-      const worker = cluster.workers[id];
-      worker['disableRefork'] = false;
+      const worker = cluster.workers[id]
+      worker['disableRefork'] = false
     }
 
-    address.protocal = this.options.https ? 'https' : 'http';
-    address.port = this.options.sticky ? this.options.port : address.port;
+    address.protocal = this.options.https ? 'https' : 'http'
+    address.port = this.options.sticky ? this.options.port : address.port
   }
 
-  onExit(code) {
-    console.log('exit with code:%s', code);
+  onExit(code: number) {
+    console.log('exit with code:%s', code)
   }
 
-  onSignal(signal) {
+  onSignal(signal: string) {
     console.log('signal', signal)
     if (this.closed) return;
 
-    console.log('receive signal %s, closing', signal);
-    this.close();
+    console.log('receive signal %s, closing', signal)
+    this.close()
   }
 
   onReload() {
-    console.log('reload workers...');
+    console.log('reload workers...')
     for (const id in cluster.workers){
-      const worker = cluster.workers[id];
+      const worker = cluster.workers[id]
       worker['isDevReload'] = true;
     }
-    require('cluster-reload')(this.options.instances);
+    require('cluster-reload')(this.options.instances)
   }
 
   async close() {
     this.closed = true;
     try {
-      const legacyTimeout = process.env.MASTER_CLOSE_TIMEOUT || 5000;
-      const appTimeout = process.env.APP_CLOSE_TIMEOUT || legacyTimeout;
-      console.log('send kill SIGTERM to app workers, will exit with code:0 after %sms', appTimeout);
-      await this.killAppWorkers(appTimeout);
+      console.log('send kill SIGTERM to app workers, will exit with code:0 after 5000 ms')
+      await this.killAppWorkers(5000)
       this.rmConfigFile()
-      console.log('close done, exiting with code:0');
-      process.exit(0);
+      console.log('close done, exiting with code:0')
+      process.exit(0)
     } catch (e){
-      console.error('close with error: ', e);
-      process.exit(1);
+      console.error('close with error: ', e)
+      process.exit(1)
     }
   }
 
   getAppWorkerFile() {
     return './lib/entry.js'
-    // return path.resolve(process.cwd(), this.options.exec || './test/app.js')
   }
 
   rmConfigFile(){

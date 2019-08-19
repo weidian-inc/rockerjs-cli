@@ -4,8 +4,6 @@
 const commander = require('commander')
 const pkg = require('../package.json')
 const shell = require('shelljs')
-const fs = require('fs')
-const path = require('path')
 const  { Master } = require('../lib/Master.js')
 const master = new Master()
 
@@ -32,6 +30,12 @@ commander.command('kill [name]')
     .description('kill -9 app')
     .action(cmd => {
         master.kill(cmd)
+    })
+
+commander.command('list')
+    .description('list all app')
+    .action(cmd => {
+        master.list()
     })
 
 commander.command('dev')
